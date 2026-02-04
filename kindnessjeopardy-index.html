@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wildcat Kindness Jeopardy</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Boogaloo&family=Lato:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        :root {
+            --primary-blue: #0047AB;
+            --super-red: #E63946;
+            --power-gold: #FFD700;
+            --white: #ffffff;
+        }
+
+        body {
+            font-family: 'Lato', sans-serif;
+            background-color: #f0f4f8;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        header {
+            background-color: var(--primary-blue);
+            width: 100%;
+            padding: 20px;
+            text-align: center;
+            border-bottom: 5px solid var(--power-gold);
+            color: var(--white);
+        }
+
+        h1 {
+            font-family: 'Bangers', cursive;
+            font-size: 3rem;
+            margin: 0;
+            letter-spacing: 2px;
+            text-shadow: 3px 3px 0px var(--super-red);
+        }
+
+        .game-container {
+            width: 95%;
+            max-width: 1200px;
+            margin: 20px auto;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .board {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 10px;
+        }
+
+        .category-header {
+            background-color: var(--super-red);
+            color: white;
+            padding: 15px 5px;
+            text-align: center;
+            font-family: 'Bangers', cursive;
+            font-size: 1.5rem;
+            border-radius: 8px;
+            border: 2px solid var(--primary-blue);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 80px;
+        }
+
+        .cell {
+            background-color: var(--primary-blue);
+            color: var(--power-gold);
+            height: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Bangers', cursive;
+            font-size: 2.5rem;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: all 0.2s;
+            border: 2px solid transparent;
+        }
+
+        .cell:hover {
+            transform: scale(1.05);
+            background-color: #0056D2;
+            border-color: var(--power-gold);
+        }
+
+        .cell.disabled {
+            background-color: #cbd5e1;
+            color: #94a3b8;
+            cursor: default;
+            pointer-events: none;
+            opacity: 0.3;
+        }
+
+        .score-board {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 30px;
+            width: 100%;
+            padding: 20px;
+            flex-wrap: wrap;
+        }
+
+        .team-score {
+            background: white;
+            padding: 15px;
+            border-radius: 12px;
+            border: 3px solid var(--primary-blue);
+            text-align: center;
+            min-width: 150px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .team-name {
+            font-family: 'Boogaloo', cursive;
+            font-size: 1.5rem;
+            margin-bottom: 5px;
+            color: var(--primary-blue);
+        }
+
+        .score-value {
+            font-family: 'Bangers', cursive;
+            font-size: 2rem;
+            color: var(--super-red);
+        }
+
+        .score-controls {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 5px;
+        }
+
+        .btn-score {
+            border: none;
+            border-radius: 4px;
+            padding: 5px 15px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+
+        .btn-plus { background-color: #22c55e; color: white; }
+        .btn-minus { background-color: #ef4444; color: white; }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.9);
+            z-index: 100;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .modal-content {
+            background-color: white;
+            width: 90%;
+            max-width: 800px;
+            border-radius: 20px;
+            padding: 40px;
+            text-align: center;
+            border: 8px solid var(--power-gold);
+            position: relative;
+            box-shadow: 0 0 50px rgba(255, 215, 0, 0.3);
+        }
+
+        .modal-question {
+            font-size: 2.5rem;
+            font-family: 'Boogaloo', cursive;
+            margin-bottom: 30px;
+            color: var(--primary-blue);
+            line-height: 1.2;
+        }
+
+        .modal-answer {
+            font-size: 2.2rem;
+            color: var(--super-red);
+            display: none;
+            margin-bottom: 20px;
+            font-weight: bold;
+            padding: 20px;
+            background: #fff9e6;
+            border-radius: 10px;
+        }
+
+        .btn-action {
+            font-family: 'Bangers', cursive;
+            font-size: 1.5rem;
+            padding: 10px 30px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            margin: 10px;
+            transition: transform 0.1s;
+        }
+
+        .btn-show { background-color: var(--power-gold); color: var(--primary-blue); }
+        .btn-close { background-color: var(--primary-blue); color: white; }
+
+        .btn-action:active { transform: scale(0.95); }
+
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1><i class="fa-solid fa-bolt"></i> KINDNESS SUPERPOWER JEOPARDY</h1>
+        <p style="font-family: 'Boogaloo'; font-size: 1.5rem; color: var(--power-gold);">Wildcats: Prove Your Superpower Skills!</p>
+    </header>
+
+    <div class="game-container">
+        <div class="board" id="gameBoard">
+            <!-- Headers -->
+            <div class="category-header">THE CLASSROOM</div>
+            <div class="category-header">LUNCHROOM HERO</div>
+            <div class="category-header">HALLWAY POWER</div>
+            <div class="category-header">RECESS FUN</div>
+            <div class="category-header">WILDCAT PRIDE</div>
+
+            <!-- Board Content (Auto-filled by JavaScript for better management) -->
+        </div>
+    </div>
+
+    <div class="score-board">
+        <!-- Teams -->
+        <div class="team-score">
+            <div class="team-name">Team 1</div>
+            <div class="score-value" id="score-0">0</div>
+            <div class="score-controls">
+                <button class="btn-score btn-minus" onclick="changeScore(0, -100)">-</button>
+                <button class="btn-score btn-plus" onclick="changeScore(0, 100)">+</button>
+            </div>
+        </div>
+        <div class="team-score">
+            <div class="team-name">Team 2</div>
+            <div class="score-value" id="score-1">0</div>
+            <div class="score-controls">
+                <button class="btn-score btn-minus" onclick="changeScore(1, -100)">-</button>
+                <button class="btn-score btn-plus" onclick="changeScore(1, 100)">+</button>
+            </div>
+        </div>
+        <div class="team-score">
+            <div class="team-name">Team 3</div>
+            <div class="score-value" id="score-2">0</div>
+            <div class="score-controls">
+                <button class="btn-score btn-minus" onclick="changeScore(2, -100)">-</button>
+                <button class="btn-score btn-plus" onclick="changeScore(2, 100)">+</button>
+            </div>
+        </div>
+        <div class="team-score">
+            <div class="team-name">Team 4</div>
+            <div class="score-value" id="score-3">0</div>
+            <div class="score-controls">
+                <button class="btn-score btn-minus" onclick="changeScore(3, -100)">-</button>
+                <button class="btn-score btn-plus" onclick="changeScore(3, 100)">+</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="questionModal">
+        <div class="modal-content">
+            <div id="modalCategory" style="color: var(--super-red); font-family: 'Bangers'; font-size: 1.8rem;">CATEGORY</div>
+            <div class="modal-question" id="modalQuestionText">The Question?</div>
+            <div class="modal-answer" id="modalAnswerText">The Answer!</div>
+            <div id="modalButtons">
+                <button class="btn-action btn-show" id="showAnswerBtn" onclick="revealAnswer()">Show Answer</button>
+                <button class="btn-action btn-close" onclick="closeModal()">Close & Back to Board</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const gameData = [
+            { cat: "Classroom", val: 100, q: "When your teacher is talking, what superpower should you use with your ears?", a: "Active Listening Power!" },
+            { cat: "Lunch", val: 100, q: "If you see someone sitting alone at lunch, what can you ask them?", a: "Would you like to sit with us?" },
+            { cat: "Hallway", val: 100, q: "Instead of running, what is the kind way to move in the hallways?", a: "Walking quietly and safely." },
+            { cat: "Recess", val: 100, q: "What is the kindest thing to do when someone falls down?", a: "Ask if they are okay and help them up." },
+            { cat: "Pride", val: 100, q: "What two words describe our Wildcat kindness?", a: "Superpower & Respect." },
+            
+            { cat: "Classroom", val: 200, q: "A classmate needs a pencil but doesn't have one. What do you do?", a: "Lend them one with a smile!" },
+            { cat: "Lunch", val: 200, q: "True or False: A Super Kindness Friend cleans up their own mess.", a: "True! It helps our school stay beautiful." },
+            { cat: "Hallway", val: 200, q: "How can you be a Hallway Hero to a teacher you pass?", a: "Smile, wave, or say hello politely." },
+            { cat: "Recess", val: 200, q: "A teammate misses a goal in soccer. What do you say?", a: "Nice try! Great effort!" },
+            { cat: "Pride", val: 200, q: "What do we call a student who helps every day?", a: "A Super Kindness Friend." },
+
+            { cat: "Classroom", val: 300, q: "A peer gets an answer wrong. What is the kindest reaction?", a: "Encourage them or keep a supportive silence." },
+            { cat: "Lunch", val: 300, q: "Why do we use 'Inside Voices' in the lunchroom?", a: "To be respectful of everyone's space." },
+            { cat: "Hallway", val: 300, q: "You see trash on the floor. What is the kind thing to do?", a: "Pick it up and put it in the bin." },
+            { cat: "Recess", val: 300, q: "If someone is left out of a game, how can you be a hero?", a: "Invite them into the game!" },
+            { cat: "Pride", val: 300, q: "Complete the phrase: 'Kindness is a ________.'", a: "Superpower!" },
+
+            { cat: "Classroom", val: 400, q: "How do you show respect during a class lesson?", a: "Raise your hand to speak and listen to others." },
+            { cat: "Lunch", val: 400, q: "What should you say to the cafeteria staff when you get your food?", a: "Thank you!" },
+            { cat: "Hallway", val: 400, q: "If you are the first one to the door, what can you do?", a: "Hold the door open for others." },
+            { cat: "Recess", val: 400, q: "What is 'Fair Play' on the playground?", a: "Following the rules and taking turns." },
+            { cat: "Pride", val: 400, q: "Why are Wildcats leaders in kindness?", a: "Because we care about our team!" }
+        ];
+
+        let scores = [0, 0, 0, 0];
+        const board = document.getElementById('gameBoard');
+
+        // Organize data into rows (100, 200, 300, 400)
+        for (let v = 100; v <= 400; v += 100) {
+            const rowData = gameData.filter(d => d.val === v);
+            rowData.forEach(item => {
+                const cell = document.createElement('div');
+                cell.className = 'cell';
+                cell.innerText = item.val;
+                cell.onclick = () => showQuestion(cell, item.cat, item.val, item.q, item.a);
+                board.appendChild(cell);
+            });
+        }
+
+        function showQuestion(element, category, value, question, answer) {
+            if (element.classList.contains('disabled')) return;
+            document.getElementById('modalCategory').innerText = category.toUpperCase() + " FOR " + value;
+            document.getElementById('modalQuestionText').innerText = question;
+            document.getElementById('modalAnswerText').innerText = answer;
+            document.getElementById('modalAnswerText').style.display = 'none';
+            document.getElementById('showAnswerBtn').style.display = 'inline-block';
+            document.getElementById('questionModal').style.display = 'flex';
+            element.classList.add('disabled');
+            element.innerText = "";
+        }
+
+        function revealAnswer() {
+            document.getElementById('modalAnswerText').style.display = 'block';
+            document.getElementById('showAnswerBtn').style.display = 'none';
+        }
+
+        function closeModal() {
+            document.getElementById('questionModal').style.display = 'none';
+        }
+
+        function changeScore(teamIndex, amount) {
+            scores[teamIndex] += amount;
+            document.getElementById(`score-${teamIndex}`).innerText = scores[teamIndex];
+        }
+
+        window.onclick = function(event) {
+            if (event.target == document.getElementById('questionModal')) closeModal();
+        }
+    </script>
+</body>
+</html>
